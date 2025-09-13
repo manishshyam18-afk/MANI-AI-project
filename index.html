@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceAI - Smart Financial Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white p-6 card-shadow">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                    <span class="text-2xl">🤖</span>
+                </div>
+                <h1 class="text-2xl font-bold">FinanceAI</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm opacity-90">Welcome back, Alex</span>
+                <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <span class="text-sm">👤</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto p-6 space-y-6">
+        <!-- Alert Banner -->
+        <div id="alertBanner" class="bg-red-100 border-l-4 border-red-500 p-4 rounded-lg hidden">
+            <div class="flex items-center">
+                <span class="text-red-600 mr-2">⚠️</span>
+                <p class="text-red-700 font-medium" id="alertMessage"></p>
+            </div>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-xl card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Balance</p>
+                        <p class="text-2xl font-bold text-green-600" id="totalBalance">$12,450.00</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">💰</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Monthly Spending</p>
+                        <p class="text-2xl font-bold text-blue-600" id="monthlySpending">$3,240.00</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">📊</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Budget Remaining</p>
+                        <p class="text-2xl font-bold text-orange-600" id="budgetRemaining">$1,760.00</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Savings Goal</p>
+                        <p class="text-2xl font-bold text-purple-600" id="savingsProgress">68%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">🏆</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Expense Input & Categorization -->
+            <div class="bg-white p-6 rounded-xl card-shadow">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="mr-2">🤖</span>
+                    AI Expense Tracker
+                </h3>
+                <form id="expenseForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <input type="text" id="expenseDescription" placeholder="e.g., Starbucks coffee" 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                        <input type="number" id="expenseAmount" placeholder="0.00" step="0.01"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">AI Suggested Category</label>
+                        <div id="suggestedCategory" class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 font-medium">
+                            Enter description for AI categorization
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        Add Expense
+                    </button>
+                </form>
+            </div>
+
+            <!-- Predictive Analytics -->
+            <div class="bg-white p-6 rounded-xl card-shadow">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="mr-2">📈</span>
+                    Spending Predictions
+                </h3>
+                <div class="space-y-4">
+                    <div class="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                        <p class="text-sm text-gray-600">Predicted Monthly Total</p>
+                        <p class="text-xl font-bold text-blue-600" id="predictedSpending">$4,850.00</p>
+                        <p class="text-xs text-gray-500 mt-1">Based on current trends</p>
+                    </div>
+                    <div class="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                        <p class="text-sm text-gray-600">Recommended Budget</p>
+                        <p class="text-xl font-bold text-green-600">$4,200.00</p>
+                        <p class="text-xs text-gray-500 mt-1">AI optimized for your goals</p>
+                    </div>
+                    <div class="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                        <p class="text-sm text-gray-600">Risk Alert</p>
+                        <p class="text-sm font-medium text-orange-600">Dining out trending 25% above budget</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goals Tracking -->
+            <div class="bg-white p-6 rounded-xl card-shadow">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="mr-2">🎯</span>
+                    Financial Goals
+                </h3>
+                <div class="space-y-4">
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium">Emergency Fund</span>
+                            <span class="text-sm text-gray-600">$6,800 / $10,000</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 68%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">68% complete • $320/month needed</p>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium">Vacation Fund</span>
+                            <span class="text-sm text-gray-600">$1,200 / $3,000</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: 40%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">40% complete • $200/month needed</p>
+                    </div>
+
+                    <button class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
+                        + Add New Goal
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Spending by Category Chart -->
+            <div class="bg-white p-6 rounded-xl card-shadow">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="mr-2">📊</span>
+                    Spending by Category
+                </h3>
+                <canvas id="categoryChart" width="400" height="300"></canvas>
+            </div>
+
+            <!-- Spending Trend Chart -->
+            <div class="bg-white p-6 rounded-xl card-shadow">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="mr-2">📈</span>
+                    Monthly Spending Trend
+                </h3>
+                <canvas id="trendChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="bg-white p-6 rounded-xl card-shadow">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                <span class="mr-2">💳</span>
+                Recent Transactions
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-medium text-gray-600">Date</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-600">Description</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-600">Category</th>
+                            <th class="text-right py-3 px-4 font-medium text-gray-600">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsList">
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="py-3 px-4 text-sm text-gray-600">Dec 15</td>
+                            <td class="py-3 px-4 text-sm">Starbucks Coffee</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">Food & Dining</span></td>
+                            <td class="py-3 px-4 text-sm text-right font-medium">-$5.45</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="py-3 px-4 text-sm text-gray-600">Dec 14</td>
+                            <td class="py-3 px-4 text-sm">Uber Ride</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Transportation</span></td>
+                            <td class="py-3 px-4 text-sm text-right font-medium">-$12.30</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="py-3 px-4 text-sm text-gray-600">Dec 13</td>
+                            <td class="py-3 px-4 text-sm">Salary Deposit</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Income</span></td>
+                            <td class="py-3 px-4 text-sm text-right font-medium text-green-600">+$3,500.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AI Expense Categorization
+        const categoryMap = {
+            'starbucks': 'Food & Dining',
+            'coffee': 'Food & Dining',
+            'restaurant': 'Food & Dining',
+            'uber': 'Transportation',
+            'gas': 'Transportation',
+            'netflix': 'Entertainment',
+            'spotify': 'Entertainment',
+            'grocery': 'Groceries',
+            'walmart': 'Groceries',
+            'rent': 'Housing',
+            'mortgage': 'Housing',
+            'electric': 'Utilities',
+            'internet': 'Utilities',
+            'gym': 'Health & Fitness',
+            'doctor': 'Healthcare',
+            'amazon': 'Shopping',
+            'target': 'Shopping'
+        };
+
+        function categorizeExpense(description) {
+            const desc = description.toLowerCase();
+            for (const [keyword, category] of Object.entries(categoryMap)) {
+                if (desc.includes(keyword)) {
+                    return category;
+                }
+            }
+            return 'Other';
+        }
+
+        // Real-time expense categorization
+        document.getElementById('expenseDescription').addEventListener('input', function(e) {
+            const description = e.target.value;
+            const category = categorizeExpense(description);
+            const categoryElement = document.getElementById('suggestedCategory');
+            
+            if (description.length > 2) {
+                categoryElement.textContent = `AI suggests: ${category}`;
+                categoryElement.className = 'p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 font-medium pulse-animation';
+            } else {
+                categoryElement.textContent = 'Enter description for AI categorization';
+                categoryElement.className = 'p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 font-medium';
+            }
+        });
+
+        // Expense form submission
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const description = document.getElementById('expenseDescription').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            
+            if (!description || !amount) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const category = categorizeExpense(description);
+            addTransaction(description, category, amount);
+            
+            // Update dashboard
+            updateDashboard(amount);
+            
+            // Check budget alerts
+            checkBudgetAlerts();
+            
+            // Reset form
+            document.getElementById('expenseForm').reset();
+            document.getElementById('suggestedCategory').textContent = 'Enter description for AI categorization';
+            document.getElementById('suggestedCategory').className = 'p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 font-medium';
+        });
+
+        function addTransaction(description, category, amount) {
+            const tbody = document.getElementById('transactionsList');
+            const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            
+            const categoryColors = {
+                'Food & Dining': 'bg-orange-100 text-orange-800',
+                'Transportation': 'bg-blue-100 text-blue-800',
+                'Entertainment': 'bg-purple-100 text-purple-800',
+                'Groceries': 'bg-green-100 text-green-800',
+                'Housing': 'bg-red-100 text-red-800',
+                'Utilities': 'bg-yellow-100 text-yellow-800',
+                'Health & Fitness': 'bg-pink-100 text-pink-800',
+                'Healthcare': 'bg-indigo-100 text-indigo-800',
+                'Shopping': 'bg-gray-100 text-gray-800',
+                'Other': 'bg-gray-100 text-gray-800'
+            };
+            
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-100 hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="py-3 px-4 text-sm text-gray-600">${today}</td>
+                <td class="py-3 px-4 text-sm">${description}</td>
+                <td class="py-3 px-4"><span class="px-2 py-1 ${categoryColors[category]} rounded-full text-xs">${category}</span></td>
+                <td class="py-3 px-4 text-sm text-right font-medium">-$${amount.toFixed(2)}</td>
+            `;
+            
+            tbody.insertBefore(row, tbody.firstChild);
+        }
+
+        function updateDashboard(expenseAmount) {
+            // Update monthly spending
+            const monthlyElement = document.getElementById('monthlySpending');
+            const currentSpending = parseFloat(monthlyElement.textContent.replace('$', '').replace(',', ''));
+            const newSpending = currentSpending + expenseAmount;
+            monthlyElement.textContent = `$${newSpending.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            
+            // Update budget remaining
+            const budgetElement = document.getElementById('budgetRemaining');
+            const currentBudget = parseFloat(budgetElement.textContent.replace('$', '').replace(',', ''));
+            const newBudget = currentBudget - expenseAmount;
+            budgetElement.textContent = `$${newBudget.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            
+            // Update predicted spending
+            const predictedElement = document.getElementById('predictedSpending');
+            const predicted = newSpending * 1.5; // Simple prediction model
+            predictedElement.textContent = `$${predicted.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        }
+
+        function checkBudgetAlerts() {
+            const budgetRemaining = parseFloat(document.getElementById('budgetRemaining').textContent.replace('$', '').replace(',', ''));
+            const alertBanner = document.getElementById('alertBanner');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            if (budgetRemaining < 500) {
+                alertMessage.textContent = `Budget Alert: Only $${budgetRemaining.toFixed(2)} remaining this month!`;
+                alertBanner.classList.remove('hidden');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    alertBanner.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Food & Dining', 'Transportation', 'Entertainment', 'Groceries', 'Utilities'],
+                    datasets: [{
+                        data: [850, 320, 180, 450, 240],
+                        backgroundColor: [
+                            '#f97316',
+                            '#3b82f6',
+                            '#8b5cf6',
+                            '#10b981',
+                            '#eab308'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Trend Chart
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Actual Spending',
+                        data: [2800, 3200, 2900, 3400, 3100, 3240],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Predicted',
+                        data: [2800, 3200, 2900, 3400, 3100, 4850],
+                        borderColor: '#f97316',
+                        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            
+            // Simulate real-time updates
+            setInterval(() => {
+                const elements = document.querySelectorAll('.pulse-animation');
+                elements.forEach(el => {
+                    el.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        el.style.transform = 'scale(1)';
+                    }, 200);
+                });
+            }, 3000);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e64a78562a9f50',t:'MTc1Nzc1MjMxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
